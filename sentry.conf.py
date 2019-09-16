@@ -268,6 +268,59 @@ SENTRY_WEB_OPTIONS = {
     # 'workers': 3,  # the number of web workers
 }
 
+########
+# LDAP #
+########
+import ldap
+from django_auth_ldap.config import LDAPSearch, GroupOfUniqueNamesType
+
+AUTH_LDAP_SERVER_URI = 'ldap://ldap.forumsys.com'
+AUTH_LDAP_BIND_DN = 'cn=read-only-admin,dc=example,dc=com'
+AUTH_LDAP_BIND_PASSWORD = 'password'
+
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    'dc=example,dc=com',
+    ldap.SCOPE_SUBTREE,
+    '(mail=%(user)s)',
+)
+
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    '',
+    ldap.SCOPE_SUBTREE,
+    '(objectClass=groupOfUniqueNames)'
+)
+
+AUTH_LDAP_GROUP_TYPE = GroupOfUniqueNamesType()
+AUTH_LDAP_REQUIRE_GROUP = None
+AUTH_LDAP_DENY_GROUP = None
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    'name': 'cn',
+    'email': 'mail'
+}
+
+AUTH_LDAP_FIND_GROUP_PERMS = False
+AUTH_LDAP_CACHE_GROUPS = True
+AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+
+AUTH_LDAP_DEFAULT_SENTRY_ORGANIZATION = u'kdab'
+AUTH_LDAP_SENTRY_ORGANIZATION_ROLE_TYPE = 'member'
+AUTH_LDAP_SENTRY_GROUP_ROLE_MAPPING = {
+    'owner': ['mathematicians'],
+    'admin': ['scientists'],
+    'member': ['chemists']
+}
+AUTH_LDAP_SENTRY_ORGANIZATION_GLOBAL_ACCESS = True
+AUTH_LDAP_SENTRY_USERNAME_FIELD = 'uid'
+
+AUTHENTICATION_BACKENDS = AUTHENTICATION_BACKENDS + (
+    'sentry_ldap_auth.backend.SentryLdapBackend',
+)
+
+import logging
+logger = logging.getLogger('django_auth_ldap')
+logger.addHandler(logging.StreamHandler())
+logger.setLevel('DEBUG')
 
 ##########
 # Docker #
